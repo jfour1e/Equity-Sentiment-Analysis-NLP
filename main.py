@@ -2,5 +2,5 @@ import dataScrape as ds
 import information as info
 
 ticker = 'AAPL'
-df = ds.ScrapeMain(info.user, info.password, ticker)
+df = ds.dataScrapeMain(info.user, info.password, ticker)
 

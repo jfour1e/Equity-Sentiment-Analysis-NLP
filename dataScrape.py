@@ -115,37 +115,47 @@ def _click_expand_icon(driver):
 
 def _extract_all_data(driver):
     """
-    Private method to extract and print all 'Type' and 'Situation' data from the Key Developments section,
+    Function to extract and print all 'Type', 'Situation', and 'Date' data from the Key Developments section,
     and return them as a DataFrame.
     """
     try:
+        # Wait for the situation, type, and date elements that match the given XPath
         situation_elements = WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.XPATH, "/html/body/table/tbody/tr[2]/td[4]/div/form/div[5]/table/tbody/tr/td/span/table[1]/tbody/tr/td[2]/div/table/tbody/tr/td"))
         )
         type_elements = WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.XPATH, "//td[@align='left' and @valign='top' and @style='width:200px;']/span[1]"))
         )
+        date_elements = WebDriverWait(driver, 5).until(
+            EC.presence_of_all_elements_located((By.XPATH, "//td[@class='cColSortedBG']/a[1]"))
+        )
 
+        # Extract text for situations, types, and dates
         situations = [element.text.strip() for element in situation_elements if element.text.strip()]
         types = [element.text.strip() for element in type_elements if element.text.strip()]
+        dates = [element.text.strip() for element in date_elements if element.text.strip()]
 
-        if len(situations) == len(types):
-            print("Situations and types extracted successfully.")
+        # Ensure equal lengths of types, situations, and dates
+        if len(situations) == len(types) == len(dates):
+            print("Situations, types, and dates extracted successfully.")
         else:
-            print("Warning: Mismatch in number of situations and types.")
+            print("Warning: Mismatch in number of situations, types, and dates.")
 
+        # Create a DataFrame
         data = {
+            'Date': dates[:len(situations)],  # Ensure that the lengths match
             'Type': types[:len(situations)],
             'Situation': situations
         }
         df = pd.DataFrame(data)
+        
+        # Display the DataFrame
         print(df)
 
         return df
 
     except Exception as e:
         print(f"Error extracting data: {e}")
-        return None
 
 def dataScrapeMain(username, password, ticker):
     """
@@ -177,7 +187,7 @@ def dataScrapeMain(username, password, ticker):
     # Extract data
     df = _extract_all_data(driver)
 
-    time.sleep()
+    time.sleep(5)
     # Close the driver
     driver.quit()
 
