@@ -4,76 +4,58 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Load the BERT model and tokenizer
-model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)
-model.load_state_dict(torch.load('NLP_Project_Model92.2.pth', map_location=torch.device('cpu')))
-model.eval()  # Set the model to evaluation mode
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-
 # List of types to remove
 types_to_remove = [
-    'Fixed Income Offering', 'Follow-on Equity Offering', 'Annual General Meeting', 
-    'End of Lock-Up Period', 'Public Offering Lead Underwriter Change', 
-    'Shelf Registration Filing', 'Company Conference Presentation', 'Conference', 
-    'Zappos.com LLC', 'Ticker Change', 'Imdb.Com, Inc.', 'Board Meeting', 
-    'Ex-Div Date (Regular)', 'Index Constituent Add', 'Index Constituent Drop', 
-    'Address Change', 'Whole Foods Market, Inc.', '1Life Healthcare, Inc.', 
-    'Dividend Affirmation', 'Earnings Release Date', 'Deliveroo plc (LSE:ROO)', 
-    'TWSE:2330', 'TWSE:6789', 'NeuralGarage Pvt Ltd', 'Mgm Interactive Inc.', 
-    'Zoox Inc.', 'Alchip Technologies, Limited (TWSE:3661)', 
-    'Special/Extraordinary Shareholders Meeting', 'Ex-Div Date (Special)', 
+    'Fixed Income Offering', 'Follow-on Equity Offering', 'Annual General Meeting',
+    'End of Lock-Up Period', 'Public Offering Lead Underwriter Change',
+    'Shelf Registration Filing', 'Company Conference Presentation', 'Conference',
+    'Zappos.com LLC', 'Ticker Change', 'Imdb.Com, Inc.', 'Board Meeting',
+    'Ex-Div Date (Regular)', 'Index Constituent Add', 'Index Constituent Drop',
+    'Address Change', 'Whole Foods Market, Inc.', '1Life Healthcare, Inc.',
+    'Dividend Affirmation', 'Earnings Release Date', 'Deliveroo plc (LSE:ROO)',
+    'TWSE:2330', 'TWSE:6789', 'NeuralGarage Pvt Ltd', 'Mgm Interactive Inc.',
+    'Zoox Inc.', 'Alchip Technologies, Limited (TWSE:3661)',
+    'Special/Extraordinary Shareholders Meeting', 'Ex-Div Date (Special)',
     'Dividend Decrease', 'Delayed SEC Filing'
 ]
 
+# Load the BERT model with the number of labels you used during training (replace with your actual number of labels)
+model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)
+
+# Load your trained model parameters and map to CPU if needed
+model.load_state_dict(torch.load('NLP_Project_Model92.2.pth', map_location=torch.device('cpu')))
+
+# Set the model to evaluation mode
+model.eval()
+
+# Load the BERT tokenizer
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+
+#filters data and removes
 def filter_data(df):
-    """
-    Filter out rows with types in the 'types_to_remove' list.
-    """
     return df[~df['Type'].isin(types_to_remove)]
+def predict(text):
+    # Tokenize the input text
+    encoded_input = tokenizer.encode_plus(
+        text,
+        add_special_tokens=True,  # Add [CLS] and [SEP] tokens
+        max_length=128,
+        pad_to_max_length=True,
+        return_attention_mask=True,
+        return_tensors='pt'  # Return PyTorch tensors
+    )
 
-def tokenize_situations(situations):
-    """
-    Tokenize the 'Situation' column using the BERT tokenizer.
-    """
-    encodings = tokenizer(situations.tolist(), truncation=True, padding='max_length', max_length=128, return_tensors='pt')
-    return encodings['input_ids'], encodings['attention_mask']
+    input_ids = encoded_input['input_ids']
+    attention_mask = encoded_input['attention_mask']
 
-def predict_sentiment(input_ids, attention_mask):
-    """
-    Predict sentiment class for tokenized situations.
-    """
-    with torch.no_grad():
+    # Make predictions
+    with torch.no_grad():  # Disable gradient computation for inference
         outputs = model(input_ids, attention_mask=attention_mask)
-        logits = outputs.logits  # Get the logits from the model
-        predicted_classes = torch.argmax(logits, dim=1)  # Get the predicted class for each input
-    return predicted_classes
+        logits = outputs[0]  # Get the logits (predicted scores for each class)
 
-def process_data(df):
-    """
-    Main function that processes the DataFrame:
-    1. Filter out unwanted types.
-    2. Tokenize situations.
-    3. Predict sentiment.
-    4. Return a DataFrame with dates and predicted sentiment scores.
-    """
-    # Step 1: Filter data
-    filtered_df = filter_data(df)
-
-    # Step 2: Tokenize situations
-    input_ids, attention_mask = tokenize_situations(filtered_df['Situation'])
-
-    # Step 3: Predict sentiment
-    sentiment_scores = predict_sentiment(input_ids, attention_mask)
-
-    # Step 4: Add sentiment scores to the DataFrame and return
-    filtered_df['Sentiment'] = sentiment_scores.numpy()
-    return filtered_df[['Date', 'Sentiment']]
-
-# Example usage
-# Assuming `df` is your DataFrame containing 'Situation', 'Type', and 'Date' columns
-processed_df = process_data(df)
-print(processed_df)
-
+    # Get the predicted class (index of the highest score)
+    predicted_class = torch.argmax(logits, dim=1).item()
+    return predicted_class
 
 def fixVals(arr):
     for i in range(len(arr)):
