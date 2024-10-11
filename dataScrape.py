@@ -147,7 +147,7 @@ def _extract_all_data(driver):
         print(f"Error extracting data: {e}")
         return None
 
-def main(username, password, ticker):
+def dataScrapeMain(username, password, ticker):
     """
     Main function to scrape data after logging in and interacting with the website.
     Returns the extracted DataFrame.
@@ -183,10 +183,3 @@ def main(username, password, ticker):
 
     return df
 
-# Example of calling the main method from another script
-if __name__ == "__main__":
-    username = "atharvam"  # Replace with your actual BU username
-    password = "QpAlZmwoskxn@00001"  # Replace with your actual BU password
-    ticker = "AAPL"  # Replace with your desired ticker symbol
-    data = main(username, password, ticker)
-    print(data)
