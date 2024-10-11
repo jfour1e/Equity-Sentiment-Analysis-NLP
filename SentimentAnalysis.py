@@ -113,6 +113,8 @@ outputs = fixVals(rawOutputs)
 
 #Main
 predicted = predict("The Jubilant Bhartia Group promoters are leading the race to acquire a significant minority stake in The Coca-Cola Company (NYSE:KO)'s India bottling arm, Hindustan Coca-Cola Beverages Private Limited (HCCB). They have signed an exclusivity agreement with Coca-Cola to negotiate the purchase for INR 108,000 million-INR 120,000 million. This move is part of Coca-Cola's strategy to adopt an asset-light model and precedes a planned listing of HCCB. The promoters of the Jubilant Bhartia Group have emerged as frontrunners for a stake in Coca-Cola's India bottling arm, bettering an offer by the Burmans of Dabur India Limited (NSEI:DABUR), as they amp up their bet on the country's evolving consumption patterns and rising disposable income, said people with knowledge of the matter.")
+finDay = fixDate(earnDate)
+startDay = finDay - 3
 time = np.linspace(startDay, finDay, 3)
 sentOvTime = np.zeros(len(outputs))
 for i in range(len(outputs)):
