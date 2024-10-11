@@ -30,7 +30,6 @@ def add_ticker():
         tracked_tickers.append(ticker.upper())
     return redirect(url_for('home'))
 
-
 def create_stock_graph(stock_data):
     combined_fig = make_subplots(rows=1, cols=1)
 
