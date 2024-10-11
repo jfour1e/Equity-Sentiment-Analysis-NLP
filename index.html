@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Tracker</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Tracked Stocks</h1>
+    <form action="/add" method="post">
+        <label for="ticker">Add a Stock Ticker:</label>
+        <input type="text" id="ticker" name="ticker">
+        <button type="submit">Track</button>
+    </form>
+
+    <h2>Combined Stock Prices Throughout the Day</h2>
+    <!-- Combined Plotly graph will be rendered here -->
+    <div>{{ combined_graph_div|safe }}</div>
+
+    <h2>Individual Stock Prices</h2>
+    <!-- Loop through each individual graph and display it -->
+    {% for ticker, graph_div in individual_graph_divs.items() %}
+        <h3>{{ ticker }} Stock Price</h3>
+        <div>{{ graph_div|safe }}</div>
+    {% endfor %}
+</body>
+</html>
