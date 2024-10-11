@@ -1,3 +1,4 @@
+import pandas
 import torch
 from transformers import BertTokenizer, BertForSequenceClassification
 import numpy as np
@@ -93,16 +94,57 @@ rawOutputs = [[1, 1, 2, 2, 2, 2, 0, 2, 0, 1, 2, 2], [1, 0, 2, 1, 2, 2, 1, 0, 2, 
               [0, 0, 2, 0, 2, 2, 1, 0, 2, 1, 0, 0, 1, 2, 1, 1, 1, 0]]
 outputs = fixVals(rawOutputs)
 
-#Main
-predicted = predict("The Jubilant Bhartia Group promoters are leading the race to acquire a significant minority stake in The Coca-Cola Company (NYSE:KO)'s India bottling arm, Hindustan Coca-Cola Beverages Private Limited (HCCB). They have signed an exclusivity agreement with Coca-Cola to negotiate the purchase for INR 108,000 million-INR 120,000 million. This move is part of Coca-Cola's strategy to adopt an asset-light model and precedes a planned listing of HCCB. The promoters of the Jubilant Bhartia Group have emerged as frontrunners for a stake in Coca-Cola's India bottling arm, bettering an offer by the Burmans of Dabur India Limited (NSEI:DABUR), as they amp up their bet on the country's evolving consumption patterns and rising disposable income, said people with knowledge of the matter.")
-finDay = fixDate(earnDate)
-startDay = finDay - 3
-time = np.linspace(startDay, finDay, 3)
-sentOvTime = np.zeros(len(outputs))
-for i in range(len(outputs)):
-    sent = totSent(outputs[i])
-    print(sent)
-    sentOvTime[i] = sent
-print(sentOvTime)
-plt.plot(time, sentOvTime)
-plt.show()
+def main(df):
+    filter_data(df)
+    df[:,0] = fixDate([:,0])
+    df_dates = df[:, 0]
+    raw_data1 = list
+    raw_data2 = list
+    raw_data3 = list
+    raw_data4 = list
+    model_outputs1 = np.zeros((1, len(raw_data1)))
+    model_outputs2 = np.zeros((1, len(raw_data2)))
+    model_outputs3 = np.zeros((1, len(raw_data3)))
+    model_outputs4 = np.zeros((1, len(raw_data4)))
+    for i in range(len(df[:,0])):
+        if (i >= 0 and i < 10):
+            raw_data1.append(df[i,2])
+        if (i >= 10 and i < 20):
+            raw_data1.append(df[i, 2])
+        if (i >= 20 and i < 30):
+            raw_data1.append(df[i,2])
+        if (i >= 30 and i < 40):
+            raw_data1.append(df[i,2])
+    for i in range(len(raw_data1)):
+        model_outputs1[i] = predict(raw_data1[i])
+    for i in range(len(raw_data2)):
+        model_outputs2[i] = predict(raw_data1[i])
+    for i in range(len(raw_data3)):
+        model_outputs3[i] = predict(raw_data1[i])
+    for i in range(len(raw_data4)):
+        model_outputs4[i] = predict(raw_data1[i])
+    model_outputs1 = fixVals(model_outputs1)
+    model_outputs2 = fixVals(model_outputs2)
+    model_outputs3 = fixVals(model_outputs3)
+    model_outputs4 = fixVals(model_outputs4)
+    data = [totSent(model_outputs1),totSent(model_outputs2),totSent(model_outputs3),totSent(model_outputs4)]
+    x_axis = [1,2,3,4]
+    plt.plot(data,x_axis)
+    plt.show()
+        
+
+
+
+# #Main
+# predicted = predict("The Jubilant Bhartia Group promoters are leading the race to acquire a significant minority stake in The Coca-Cola Company (NYSE:KO)'s India bottling arm, Hindustan Coca-Cola Beverages Private Limited (HCCB). They have signed an exclusivity agreement with Coca-Cola to negotiate the purchase for INR 108,000 million-INR 120,000 million. This move is part of Coca-Cola's strategy to adopt an asset-light model and precedes a planned listing of HCCB. The promoters of the Jubilant Bhartia Group have emerged as frontrunners for a stake in Coca-Cola's India bottling arm, bettering an offer by the Burmans of Dabur India Limited (NSEI:DABUR), as they amp up their bet on the country's evolving consumption patterns and rising disposable income, said people with knowledge of the matter.")
+# finDay = fixDate(earnDate)
+# startDay = finDay - 3
+# time = np.linspace(startDay, finDay, 3)
+# sentOvTime = np.zeros(len(outputs))
+# for i in range(len(outputs)):
+#     sent = totSent(outputs[i])
+#     print(sent)
+#     sentOvTime[i] = sent
+# print(sentOvTime)
+# plt.plot(time, sentOvTime)
+# plt.show()
